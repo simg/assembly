@@ -1,0 +1,95 @@
+main {
+  //text-align: center;
+  padding: 1em;
+  //max-width: 240px;
+  margin: 0 auto;
+}
+
+#appname {
+  
+  font-size:2em;
+  font-weight:bold;
+  display:inline-block;
+  vertical-align: middle;
+  margin-right:30px;
+  a {
+    color:blue !important;
+    &:hover {
+      text-decoration: none;;
+    }
+  }
+}
+
+h1 {
+  color: #ff3e00;
+  text-transform: uppercase;
+  font-size: 4em;
+  font-weight: 100;
+}
+
+h3 {
+  color:#222;
+  margin:0 0 10px 0;
+
+  a {
+    color:#222;
+    &:visited {
+      color:#222; /*TODO*/
+    }
+  }
+}
+
+article {
+  margin: 0 0 25px 0;
+}
+
+.meta-text {
+  color:#999;
+  font-size:14px;
+  margin:0 0 5px 0;
+}
+
+.author-name {
+  color:#222;
+  font-weight:bold;
+  font-size:14px;
+}
+
+.highlight-text {
+  color: #222;
+  font-weight:bold;
+}
+
+.error {
+  border:1px solid red;
+  background:#fee;
+  padding:10px 20px;
+  margin:15px 0px;
+}
+
+.answer-count {
+  color: #222;
+  font-weight:bold;  
+  display:block;
+  margin:10px 0;
+}
+
+
+button,
+.btn,
+.btn:visited,
+.btn:hover {
+  color:#333;
+  border:1px solid #ccc;
+  border-radius:2px;
+  background: #f4f4f4;
+  padding:8px 15px;
+  text-decoration: none;
+  cursor:default;
+}
+
+@media (min-width: 640px) {
+  main {
+    //max-width: none;
+  }
+}

@@ -1,0 +1,119 @@
+version: "3.3"
+services:
+
+  traefik:
+    image: "traefik:v2.4"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:5080"
+    ports:
+      - "5080:5080"
+      - "8081:8080"
+    networks:
+      - public
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  svelte:
+    container_name: svelte
+    build:
+      context: ./svelte
+    ports:
+      - 5000:5000
+      - 9229:9229
+    volumes:
+      - ./svelte:/svelte
+    environment: 
+      - HOST=0.0.0.0
+    depends_on:
+      - graphile
+    command: npm run dev
+    working_dir: /svelte
+    networks:
+      - public
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.svelte.rule=Host(`localhost`)
+      - traefik.http.routers.svelte.entrypoints=web
+  postgres:
+    container_name: postgres
+    restart: always
+    image: postgres
+    build:
+      context: ./postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - public
+    ports:
+      - 5432:5432
+
+  graphile:
+    container_name: graphile
+    restart: always
+    image: graphile
+    build:
+      context: ./graphile
+    env_file:
+      - .env
+    #environment:
+      #- DEBUG=postgraphile:postgres,postgraphile:postgres:error,postgraphile:graphql
+    depends_on:
+      - postgres
+    networks:
+      - public
+    ports:
+      - 5433:5433
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.graphile.rule=PathPrefix(`/graphql`) || PathPrefix(`/graphiql`)
+      - traefik.http.routers.graphile.entrypoints=web      
+
+  migrate:
+    container_name: migrate
+    build:
+      context: ./db-migrations
+    volumes:
+      - ./db-migrations:/db-migrations
+    env_file:
+      - .env
+    depends_on:
+      - postgres      
+    command: graphile-migrate watch
+    working_dir: /db-migrations
+    networks:
+      - public
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file:
+      - .env
+    depends_on:
+      - postgres      
+    volumes:
+       - pgadmin:/root/.pgadmin
+    ports:
+      - 5050:80
+    networks:
+      - public
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pgadmin.rule=PathPrefix(`/pgadmin`)
+      - traefik.http.middlewares.pgadmin.stripprefix.prefixes=/pgadmin
+      - traefik.http.middlewares.pgadmin.stripprefix.forceSlash=false
+      - traefik.http.routers.pgadmin.entrypoints=web           
+
+networks:
+  public:
+
+volumes:
+  postgres:
+  pgadmin:
