@@ -11,12 +11,7 @@ import { Router, Link, Route } from 'svelte-routing';
 import Home from './pages/Home.svelte';
 import ViewQuestion from './pages/ViewQuestion.svelte';
 import AddQuestion from './pages/AddQuestion.svelte';
-import Comments from './pages/Comments.svelte';
 
-	// const client = createClient({
-	// 	url: '/graphql',
-	// 	exchanges: [devtoolsExchange, ...defaultExchanges],
-	// });
 
   initClient({
     url: '/graphql',
@@ -35,21 +30,24 @@ import Comments from './pages/Comments.svelte';
 		
 </script>
 
+<style src="./App.scss" global /> 
+
 
 <main>
   <Router url="{url}">
-    <header>
+    <header id="topnav">
       <h1 id="appname"><Link to="/">Assembly</Link></h1>
-      <Link to="/add-question" class="btn">Add Question</Link>  
-      <!-- <Link to="/admin/comments" class="btn">Comments Admin</Link> -->
+      <Link to="/" class="btn-icon btn-home"><span class="text">Home</span></Link>
+      <Link to="/following" class="btn-icon btn-following"><span class="text">Following</span></Link>
+      <Link to="/notifications" class="btn-icon btn-notifications"><span class="text">Notifications</span></Link>
+      <input id="searchbox" type="text" placeholder="Search Assembly" />
+      <Link to="/add-question" class="btn-add-question">Add Question</Link>  
     </header>
     <div>
       <Route path="/"><Home /></Route>
       <Route path="question/:id" let:params><ViewQuestion questionId="{params.id}" /></Route>
       <Route path="/add-question"><AddQuestion /></Route>
-      <Route path="/admin/comments"><Comments /></Route>
     </div>
   </Router> 
 </main>
 
-<style src="./App.scss" global />

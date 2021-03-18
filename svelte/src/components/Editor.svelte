@@ -18,7 +18,7 @@ onMount(async ()=> {
     tools: { 
       header: {
         class: Header,
-        inlineToolbar: ['link', 'marker', 'bold', 'italic'],
+        //inlineToolbar: ['link', 'marker', 'bold', 'italic'],
       },
       list: List,
       paragraph: Paragraph
@@ -33,7 +33,11 @@ onMount(async ()=> {
 });
 
 onDestroy(() => {
-  editor.destroy()
+  // sometimes the editor can already have been removed by the time
+  // we get here, which causes an error.
+  if (editor && editor.destroy) {
+    editor.destroy();
+  } 
 })
 
 </script>

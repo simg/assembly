@@ -1,0 +1,151 @@
+button,
+.btn,
+.btn:focus,
+.btn:visited {
+  color:#333;
+  padding:8px 15px;
+  border:1px solid transparent;
+  background:none;
+  display:inline-block;
+  white-space: nowrap;
+  &:hover {
+    border:1px solid #ccc;
+    border-radius:5px;
+    background: #f4f4f4;
+    text-decoration: none;
+    cursor:default;
+  }
+}
+
+.btn-icon {
+  padding:8px; //16px 4px 8px 12px;
+  border:1px solid transparent;
+  display:inline-block;
+  .text {
+    display:none;
+  }  
+  &:before {
+    @extend %fa-icon;
+    font-size:175%;
+    color:#555;
+  }
+  &:hover {
+    border:1px solid #ccc;
+    border-radius:5px;
+    background: #f4f4f4;
+    text-decoration: none;
+    cursor:default;
+  }  
+}
+
+.btn-home {
+  &:before {
+    @extend .fas;    
+    content: fa-content($fa-var-home);
+  }
+
+}
+
+.btn-following {
+  &:before {
+    @extend .fas;    
+    content: fa-content($fa-var-users);
+  }
+}
+
+.btn-notifications {
+  &:before {
+    @extend .far;    
+    content: fa-content($fa-var-bell);
+  }
+
+}
+
+.btn-add-question {
+  margin-left:25px;
+  padding:8px 15px;
+  white-space: nowrap;
+  background:$primary-color;
+  color:#fff;
+  border-radius:15px;
+  &:hover {
+    text-decoration: none;
+    background-color:darken($primary-color, 10%);
+  }
+  &:visited,
+  &:focus {
+    color:#fff;
+    cursor:default;
+  }
+  
+}
+
+
+
+.btn-answer {
+  &:before {
+    @extend %fa-icon;
+    @extend .fas;    
+    content: fa-content($fa-var-edit);
+    margin-right:7px;
+  }
+}
+
+.btn-follow {
+  &:before {
+    @extend %fa-icon;
+    @extend .fas;    
+    content: fa-content($fa-var-rss);
+    margin-right:7px;
+  }
+}
+
+.btn-comments {
+  &:before {
+    @extend %fa-icon;
+    @extend .far;    
+    content: fa-content($fa-var-comment);
+    margin-right:7px;
+  }
+  .text {
+    display:none;
+  }
+}
+
+.btn-downvote {
+  &:before {
+    @extend %fa-icon;
+    @extend .far;    
+    content: fa-content($fa-var-thumbs-down);
+    margin-right:7px;
+  }
+  .text {
+    display:none;
+  }
+}
+
+.btn-share {
+  &:before {
+    @extend %fa-icon;
+    @extend .fas;    
+    content: fa-content($fa-var-share);
+    margin-right:7px;
+  }
+  .text {
+    display:none;
+  }
+}
+
+.btn-options {
+  &:before {
+    @extend %fa-icon;
+    @extend .fas;    
+    content: fa-content(\f141);
+    margin-right:7px;
+  }
+  .text {
+    display:none;
+  }
+}
+
+

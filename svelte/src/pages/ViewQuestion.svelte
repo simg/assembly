@@ -10,7 +10,8 @@
   import { dateFormat } from '../lib/dateHelpers';
       
   import { operationStore, query, mutation } from '@urql/svelte';
-import AddComment from '../components/AddComment.svelte';
+  import AddComment from '../components/AddComment.svelte';
+  import QuestionComments from '../components/QuestionComments.svelte';
 
   export let questionId;
   export let userId = 1;
@@ -33,6 +34,9 @@ import AddComment from '../components/AddComment.svelte';
           questionFollowers {
             totalCount
           }
+          questionComments {
+            totalCount
+          }          
           isUserFollowing : questionFollowers(condition: {userId: "${userId}"}) {
             totalCount
           }          
@@ -128,9 +132,9 @@ import AddComment from '../components/AddComment.svelte';
   //   console.log("handleAddComment", $event);
   // }  
 
-  function btnShowCommentsClick($event) {
+  function btnShowCommentsToggleClick($event) {
     console.log("btnShowCommentsClick", $event);
-    showQuestionComments = true;
+    showQuestionComments = !showQuestionComments;
   }  
 
 
@@ -145,56 +149,56 @@ import AddComment from '../components/AddComment.svelte';
   }
 </style>
 
-<main>
-  {#if $question.fetching}
-  <p>Loading...</p>
-  {:else if $question.error}
-  <p class="error">Oh no... {$question.error.message}</p>
-  {:else}
-    <article class="question-body">
-      <h2>{question.data.question.question}</h2>
-      <div class="question-actions">
-        <button on:click={btnAddAnswerClick}>Answer</button>
-        <button on:click={() => toggleFollowQuestionClick(question.data.question.isUserFollowing.totalCount > 0)}>
-          { question.data.question.isUserFollowing.totalCount > 0 ? 'Unfollow' : 'Follow'}
-          . {question.data.question.questionFollowers.totalCount}</button>
-        <button on:click={btnShowCommentsClick}>Comments . {0}</button>
-        <button>Downvote</button>
-        <button>Share</button>
-        <button>More options</button>
-      </div>
-      <!-- {#if showQuestionComments }
-         <AddComment on:cancelled={handleAddCommentCancelled} on:addComment={handleAddComment} /> -->
-      <!-- {/if} -->
-      {#if showAddAnswer}
-        <EditAnswer questionId={questionId} on:answerClosed={handleAnswerClosed}/>
-      {/if}
-      <div class="answer-count">
-        {question.data.question.answers.totalCount} answers
-      </div>
-      {#each $question.data.question.answers.nodes as answer}
-        <article>
-          <header>
-            <div class="meta-text">
-              <!-- <span class="answer-id">{answer.id}</span> -->
-              <span class="author-name">{answer.author.firstName} {answer.author.lastName}</span>
-              answered <span class="meta-date">{dateFormat(answer.createdDate)}</span>
-            </div>
-          </header>
-          {#if editAnswerId == answer.id}
-            <EditAnswer answerId={answer.id} on:answerClosed={handleAnswerClosed}/>
-          {:else}
 
-            <div class="answer-text">
-              <Content output={answer.answer} />
-            </div>
-          {/if}
-          <div class="answer-actions">
-            <button on:click|preventDefault={() => btnDeleteAnswerClick(answer.id)}>Delete</button>
-            <button on:click|preventDefault={() => btnEditAnswerClick(answer.id)}>Edit</button>
+{#if $question.fetching} 
+<p>Loading...</p>
+{:else if $question.error}
+<p class="error">Oh no... {$question.error.message}</p>
+{:else}
+  <article class="question-body">
+    <h2>{question.data.question.question}</h2>
+    <div class="question-actions">
+      <button class="btn btn-answer" on:click={btnAddAnswerClick}>Answer</button>
+      <button class="btn btn-follow" on:click={() => toggleFollowQuestionClick(question.data.question.isUserFollowing.totalCount > 0)}>
+        { question.data.question.isUserFollowing.totalCount > 0 ? 'Unfollow' : 'Follow'}
+        . {question.data.question.questionFollowers.totalCount}</button>
+      <button class="btn btn-comments"on:click={btnShowCommentsToggleClick}><span class="text">Comments . </span><span class="count">{question.data.question.questionComments.totalCount}</span></button>
+      <button class="btn btn-downvote"><span class="text">Downvote</span></button>
+      <button class="btn btn-share"><span class="text">Share</span></button>
+      <button class="btn btn-options"><span class="text">More options</span></button>
+    </div>
+    {#if showQuestionComments }
+        <!-- <AddComment on:cancelled={handleAddCommentCancelled} on:addComment={handleAddComment} /> -->
+        <QuestionComments questionId={question.data.question.id} />
+    {/if}
+    {#if showAddAnswer}
+      <EditAnswer questionId={questionId} on:answerClosed={handleAnswerClosed}/>
+    {/if}
+    <div class="answer-count">
+      {question.data.question.answers.totalCount} answers
+    </div>
+    {#each $question.data.question.answers.nodes as answer}
+      <article>
+        <header>
+          <div class="meta-text">
+            <!-- <span class="answer-id">{answer.id}</span> -->
+            <div class="author-name">{answer.author.firstName} {answer.author.lastName}</div>
+            <div>answered <span class="meta-date">{dateFormat(answer.createdDate)}</span></div>
           </div>
-        </article>
-      {/each}
-    </article>
-  {/if}  
-</main>
+        </header>
+        {#if editAnswerId == answer.id}
+          <EditAnswer answerId={answer.id} on:answerClosed={handleAnswerClosed}/>
+        {:else}
+
+          <div class="answer-text">
+            <Content output={answer.answer} />
+          </div>
+        {/if}
+        <div class="answer-actions">
+          <button on:click|preventDefault={() => btnDeleteAnswerClick(answer.id)}>Delete</button>
+          <button on:click|preventDefault={() => btnEditAnswerClick(answer.id)}>Edit</button>
+        </div>
+      </article>
+    {/each}
+  </article>
+{/if}  

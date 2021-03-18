@@ -16,9 +16,7 @@
   export let questionId;
   export let userId = 1;
 
-  let showAddAnswer = false;
-  let editAnswerId : string | undefined;
-  let showQuestionComments = false;
+  export let comments
 
   const questionParameters = {
     cacheBuster : 0
