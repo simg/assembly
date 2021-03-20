@@ -14,19 +14,21 @@
   import QuestionComments from '../components/QuestionComments.svelte';
 
   export let questionId;
-  export let userId = 1;
+  export let userId = '1';
 
   let showAddAnswer = false;
   let editAnswerId : string | undefined;
   let showQuestionComments = false;
 
   const questionParameters = {
-    cacheBuster : 0
+    cacheBuster : 0,
+    questionId: questionId,
+    userId: userId
   }
   
   const question = operationStore(`
-      query MyQuery {
-        question(id: ${questionId}) {
+      query ($questionId : BigInt!, $userId : BigInt!) {
+        question(id: $questionId) {
           __typename
           id
           question
@@ -37,7 +39,7 @@
           questionComments {
             totalCount
           }          
-          isUserFollowing : questionFollowers(condition: {userId: "${userId}"}) {
+          isUserFollowing : questionFollowers(condition: {userId: $userId}) {
             totalCount
           }          
           answers {

@@ -5,6 +5,12 @@ export let output : OutputBlockData[] = [];
 
 </script>
 
+<style>
+  P:last-child {
+    margin-bottom:0;
+  }
+</style>
+
 {#if Array.isArray(output) }
   {#each output as block }
     {#if (block.type == 'paragraph')}

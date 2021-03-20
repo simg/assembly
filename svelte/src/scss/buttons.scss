@@ -112,6 +112,48 @@ button,
   }
 }
 
+.btn-comment-expand {
+  &:before {
+    @extend %fa-icon;
+    @extend .far;    
+    content: fa-content($fa-var-plus-square);
+    margin-right:7px;
+  }
+  &:hover:before {
+    color:#222;
+  }
+}
+
+.btn-comment-collapse {
+  &:before {
+    @extend %fa-icon;
+    @extend .far;    
+    content: fa-content($fa-var-minus-square);
+    margin-right:7px;
+  }
+  &:hover:before {
+    color:#222;
+  }
+}
+
+.btn-upvote {
+  &:before {
+    @extend %fa-icon;
+    @extend .far;    
+    content: fa-content($fa-var-thumbs-up);
+    margin-right:7px;
+  }
+}
+
+.btn-reply {
+  &:before {
+    @extend %fa-icon;
+    @extend .far;    
+    content: fa-content($fa-var-comment);
+    margin-right:7px;
+  }
+}
+
 .btn-downvote {
   &:before {
     @extend %fa-icon;
