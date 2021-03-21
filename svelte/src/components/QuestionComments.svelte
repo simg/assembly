@@ -5,17 +5,17 @@
   import { dateTimeFormat } from '../lib/dateHelpers';
   import { operationStore, query } from '@urql/svelte';
 
-  import { Author } from '../lib/types';
-  import { emptyCommentTree, CommentTree, Comment, updateCommentTree } from '../lib/comment-tree';
+  import { emptyCommentTree, updateCommentTree } from '../lib/comment-tree';
   import ShowComment from './ShowComment.svelte';
   import type { OutputBlockData } from '@editorjs/editorjs';
 
   export let questionId;
+  const userId = "1"; //TODO: plumb in user context
 
   $:commentTree = emptyCommentTree();
 
   const commentsQuery = operationStore(`
-    query ($questionId : BigInt!) {
+    query ($questionId : BigInt!, $userId : BigInt!) {
       questionComments(condition: {questionId: $questionId}) {
         nodes {
           id
@@ -27,12 +27,18 @@
             id
             firstName
             lastName
-          }        
+          }
+          isUserUpvoted : questionCommentUpvotesByCommentId(condition: {userId: $userId}) {
+            totalCount
+          }
+          isUserDownvoted : questionCommentDownvotesByCommentId(condition: {userId: $userId}) {
+            totalCount
+          }                        
           createdDate
         }
       }
     }
-  `, {questionId}, { requestPolicy: 'network-only' });
+  `, {questionId, userId}, { requestPolicy: 'network-only' });
   query(commentsQuery).subscribe(res => {
     if (res.data) {
       commentTree = updateCommentTree(commentTree, res.data.questionComments.nodes);
@@ -47,7 +53,7 @@
 {:else}
   <section>
   {#each commentTree.comments as comment}
-    <ShowComment comment={comment} />
+    <ShowComment questionId={questionId} comment={comment} />
   {/each}    
   <!-- {#each $comments.data.questionComments.nodes as comment}
     <article>

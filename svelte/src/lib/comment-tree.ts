@@ -6,9 +6,15 @@ import * as _ from 'lodash/fp';
 type _GqlComment = {
   id : string ;
   parentId : string
-  comment : OutputBlockData;
+  comment : OutputBlockData[];
   upvotes: number ;
   downvotes:number;
+  isUserUpvoted: {
+    totalCount:number
+  };
+  isUserDownvoted:{
+    totalCount:number
+  };
   author: Author ;
   createdDate: Date;
 }
@@ -20,16 +26,20 @@ export type CommentTree = {
 }
 
 export type Comment = {
-  id : string;
+  id : string | undefined;
   parentId : string ;
-  comment: OutputBlockData ;
+  comment: OutputBlockData[] ;
   upvotes: number ;
-  downvotes:number;  
+  downvotes:number;
+  isUserUpvoted:boolean;
+  isUserDownvoted:boolean; 
   author: Author;
   createdDate:Date;
   replies: Comment[];
   expanded: boolean;
+  showEdit:boolean;
 }
+
 
 export const emptyCommentTree = () => ({
   index : new Map<string, Comment>(),
@@ -79,12 +89,21 @@ const _updateCommentTree = (commentTree:CommentTree, _comment: _GqlComment) : Co
 
 
 const mergeComment = (comment: Comment, _comment: _GqlComment) : Comment => {
-  return _.assign(comment, _comment);
+  return _.assign(
+      comment, 
+      _comment, {
+        isUserUpvoted: !!_comment.isUserUpvoted.totalCount,
+        isUserDownvoted: !!_comment.isUserDownvoted.totalCount,
+      }
+    );
 }
 
 function toComment(_comment: _GqlComment) : Comment {
-  return _.assign({
+  return _.assign(_comment, {
       replies:[],
-      expanded:false
-    }, _comment);
+      expanded:false,
+      showAddReply:false,
+      isUserUpvoted: !!_comment.isUserUpvoted.totalCount,
+      isUserDownvoted: !!_comment.isUserDownvoted.totalCount,
+    });
 }

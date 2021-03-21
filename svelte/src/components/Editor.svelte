@@ -8,6 +8,7 @@ import Paragraph from '@editorjs/paragraph';
 
 export let editorId = 'editorjs'; 
 export let content : EditorJS.OutputBlockData[]  = [];
+export let minHeight: number = 300;
 
 let editor;
 
@@ -15,7 +16,8 @@ onMount(async ()=> {
   editor = new EditorJS({ 
     holder: editorId,
     autofocus: true,
-    tools: { 
+    minHeight:minHeight,
+    tools: {
       header: {
         class: Header,
         //inlineToolbar: ['link', 'marker', 'bold', 'italic'],
@@ -42,4 +44,11 @@ onDestroy(() => {
 
 </script>
 
-<div id="{editorId}"></div>
+<style>
+  .editor {
+    border:1px solid #eee;
+    padding:5px 15px;
+  }
+</style>
+
+<div class="editor" id="{editorId}"></div>

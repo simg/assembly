@@ -143,6 +143,9 @@ button,
     content: fa-content($fa-var-thumbs-up);
     margin-right:7px;
   }
+  &.set {
+    color:green;
+  }    
 }
 
 .btn-reply {
@@ -163,6 +166,9 @@ button,
   }
   .text {
     display:none;
+  }
+  &.set {
+    color:red;
   }
 }
 
