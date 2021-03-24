@@ -5,7 +5,7 @@ import { createEventDispatcher } from 'svelte';
 import { operationStore, mutation } from '@urql/svelte';
 
 import type { Author } from '../lib/types';
-import type { Comment } from '../lib/comment-tree';
+import { Comment, emptyCommentTree } from '../lib/comment-tree';
 import ShowComment from './ShowComment.svelte';
 import Content from './Content.svelte';
 import Editor from './Editor.svelte';
@@ -58,7 +58,7 @@ const downvoteCommentCancelMutation = mutation(operationStore(`
 `));
 
 const addCommentMutation = mutation(operationStore(`
-    mutation ($questionId: BigInt!, $parentId: BigInt!, $comment: JSON!) {
+    mutation ($questionId: BigInt!, $parentId: BigInt, $comment: JSON!) {
       addComment(input: {questionId: $questionId, parentId:$parentId, comment:$comment }) {
         clientMutationId
       }
@@ -72,6 +72,14 @@ const updateCommentMutation = mutation(operationStore(`
         id
         comment
       }
+      clientMutationId
+    }
+  }
+`));
+
+const deleteCommentMutation = mutation(operationStore(`
+  mutation ($commentId: BigInt!) {
+    deleteComment(input: {commentId : $commentId }) {
       clientMutationId
     }
   }
@@ -142,6 +150,14 @@ function btnReplyClick() {
     }, ...comment.replies];
 }
 
+function btnDeleteCommentClick() {
+  deleteCommentMutation({commentId:comment.id})
+    .then(() => {
+      //TODO: need to implement urql stores properly to avoid this
+      dispatch('commentDeleted', comment);
+    });
+}
+
 function btnSaveReplyClick() {
   if (comment.id) {
       updateCommentMutation({commentId: comment.id, comment : comment.comment}).then(res => {
@@ -195,7 +211,6 @@ function btnToggleCommentExpandedClick() {
     }
   }
 </style>
-  
 
 {#if comment.expanded}
   <article class="comment">
@@ -218,6 +233,7 @@ function btnToggleCommentExpandedClick() {
           <button class="btn btn-upvote {comment.isUserUpvoted ? 'set':'unset'}" on:click|preventDefault={btnUpvoteClick}><span class="text">Upvote</span></button>
           <button class="btn btn-downvote {comment.isUserDownvoted ? 'set':'unset'}" on:click|preventDefault={btnDownvoteClick}><span class="text">Downvote</span></button>
           <button class="btn btn-reply" on:click|preventDefault={btnReplyClick}>Reply</button>
+          <!-- <button class="btn btn-delete" on:click|preventDefault={btnDeleteCommentClick}>Delete</button> -->
         </div>
         {#if comment.replies.length > 0}
         <div class="comment-replies">

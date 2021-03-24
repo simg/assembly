@@ -27,9 +27,13 @@ onMount(async ()=> {
     }, 
     data: { blocks:content},
     onChange: () => {
-      editor.save().then(outputData => {
-        content = outputData.blocks;
-      })
+      // sometimes the editor can already have been removed by the time
+      // we get here, which causes an error.      
+      if (editor) {
+        editor.save().then(outputData => {
+          content = outputData.blocks;
+        })
+      }
     }
   })
 });

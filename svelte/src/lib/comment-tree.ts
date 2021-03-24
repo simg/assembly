@@ -47,6 +47,19 @@ export const emptyCommentTree = () => ({
   orphans:[]
 });
 
+export const removeCommentFromTree = (commentTree:CommentTree, comment:Comment) : CommentTree => {
+  if (!comment.parentId) {
+    commentTree.comments = commentTree.comments.filter(c => c != comment);
+  }
+  const parentComment = commentTree.index[comment.parentId];
+  if (!parentComment) {
+    // we don't have the comment in the tree. maybe something has gone wrong?
+    return;
+  }
+  parentComment.comments = parentComment.comments.filter(c => c != comment);
+  return commentTree;
+}
+
 export const updateCommentTree = (commentTree:CommentTree, comments: _GqlComment[] ) : CommentTree => {
   return comments.reduce(_updateCommentTree, commentTree);
 }

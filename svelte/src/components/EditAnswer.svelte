@@ -20,7 +20,7 @@
   } 
 
   const fetchAnswerQuery = operationStore(`
-      query ($answerId : Int!) {
+      query ($answerId : BigInt!) {
         answer(id: $answerId) {
           __typename
           id
