@@ -98,14 +98,10 @@
         console.log("comment added")
         comment.showEdit=false;
         commentTree.comments = [...commentTree.comments, comment];
-        //setInterval(() => {
-          //allows svelte to destroy the Editor component before recreating it 
-          //with a reference to the new newComment.comment
-          newComments = [
-            defaultComment()
-          ];
-          newCommentCount++;
-        //},50);
+        newComments = [
+          defaultComment()
+        ];
+        newCommentCount++;
       }
     });
   }

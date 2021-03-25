@@ -13,7 +13,7 @@ LANGUAGE plpgsql VOLATILE;
 
 drop table if exists public.user;
 create table public.user (
-  id serial primary key,
+  id bigserial primary key,
   email text not null,
   username text not null,  
   first_name text not null,
@@ -25,7 +25,7 @@ create trigger update_user before update on public.user for each row execute pro
 
 drop table if exists public.question;
 create table public.question (
-  id serial primary key,
+  id bigserial primary key,
   author_id bigint not null references public.user(id) on delete cascade,
   question TEXT not null,
   details TEXT,
@@ -48,7 +48,7 @@ comment on table public.question is
 
 drop table if exists public.answer;
 create table public.answer (
-  id serial primary key,
+  id bigserial primary key,
   answer JSON not null,
   question_id bigint not null references public.question(id) on delete cascade,
   author_id bigint not null references public.user(id) on delete cascade,
@@ -61,11 +61,13 @@ comment on table public.answer is
 
 drop table if exists public.question_comment;
 create table public.question_comment (
-  id serial primary key,
-  comment TEXT not null,
+  id bigserial primary key,
   question_id bigint references public.question(id) on delete cascade,
   parent_id bigint references public.question_comment(id) on delete cascade,
   author_id bigint not null references public.user(id) on delete cascade,
+  comment JSON not null,
+  upvotes int not null default 0,
+  downvotes int not null default 0,
   updated_date timestamp with time zone default CURRENT_TIMESTAMP,
   created_date timestamp with time zone default CURRENT_TIMESTAMP
 );
@@ -73,9 +75,31 @@ create trigger update_comment before update on public.question_comment for each 
 comment on table public.question_comment is
   'Question Comment';
 
+drop table if exists public.question_comment_upvote;
+create table public.question_comment_upvote (
+  user_id bigint not null references public.user(id) on delete cascade,
+  comment_id bigint not null references public.question_comment(id) on delete cascade,
+  created_date timestamp with time zone default CURRENT_TIMESTAMP,
+  constraint question_comment_upvote_pkey primary key (user_id, comment_id)
+);
+comment on table public.question_comment_upvote is
+  'Question Commment Upvotes';
+
+drop table if exists public.question_comment_downvote;
+create table public.question_comment_downvote (
+  user_id bigint not null references public.user(id) on delete cascade,
+  comment_id bigint not null references public.question_comment(id) on delete cascade,
+  created_date timestamp with time zone default CURRENT_TIMESTAMP,
+  constraint question_comment_downvote_pkey primary key (user_id, comment_id)
+);
+comment on table public.question_comment_upvote is
+  'Question Commment Downvotes'; 
+
+
+
 drop table if exists public.answer_comment;
 create table public.answer_comment (
-  id serial primary key,
+  id bigserial primary key,
   comment TEXT not null,
   answer_id bigint references public.answer(id) on delete cascade,
   parent_id bigint references public.answer_comment(id) on delete cascade,
@@ -107,7 +131,7 @@ GRANT ALL ON TABLE public.user TO postgres WITH GRANT OPTION;
 
 -- drop table if exists public.human;
 -- create table public.human (
---   id serial primary key,
+--   id bigserial primary key,
 --   title TEXT,
 --   first_name TEXT,
 --   last_name TEXT,
@@ -125,7 +149,7 @@ GRANT ALL ON TABLE public.user TO postgres WITH GRANT OPTION;
 
 -- drop table if exists public.comment;
 -- create table public.comment (
---   id serial primary key,
+--   id bigserial primary key,
 --   comment TEXT not null,
 --   parent_id bigint references public.comment(id) on delete cascade,
 --   author_id bigint not null references public.user(id) on delete cascade,

@@ -125,17 +125,7 @@
     });
   }
 
-  // function handleAddCommentCancelled($event) {
-  //   console.log("btnAddCommentCancelledClick", $event);
-  //   showAddQuestionComment = false;
-  // }
-
-  // function handleAddComment($event) {
-  //   console.log("handleAddComment", $event);
-  // }  
-
   function btnShowCommentsToggleClick($event) {
-    console.log("btnShowCommentsClick", $event);
     showQuestionComments = !showQuestionComments;
   }  
 
@@ -170,7 +160,6 @@
       <button class="btn btn-options"><span class="text">More options</span></button>
     </div>
     {#if showQuestionComments }
-        <!-- <AddComment on:cancelled={handleAddCommentCancelled} on:addComment={handleAddComment} /> -->
         <QuestionComments questionId={question.data.question.id} />
     {/if}
     {#if showAddAnswer}

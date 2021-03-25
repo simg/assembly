@@ -57,3 +57,70 @@ as $$
     author_id = current_user_id() and id = answer_id	returning *;
 $$ language sql volatile strict;
 
+-----------------------------------------------------
+-- COMMENTS
+-----------------------------------------------------
+create or replace function public.add_comment(question_id bigint, comment JSON, parent_id bigint default null)
+returns public.question_comment
+as $$
+  insert into public.question_comment(question_id, parent_id, author_id, comment, upvotes, downvotes) values
+  	(question_id, parent_id, current_user_id(), comment, 0, 0)	returning *;
+$$ language sql volatile;
+
+create or replace function public.update_comment(comment_id bigint, comment JSON)
+returns public.question_comment
+as $$
+  update public.question_comment set comment = update_comment.comment
+    where id = comment_id	returning *;
+$$ language sql volatile strict;
+
+create or replace function public.delete_comment(comment_id bigint)
+returns public.question_comment
+as $$
+  delete from public.question_comment where id = comment_id	returning *;
+$$ language sql volatile strict;
+
+create or replace function public.upvote_comment(comment_id bigint)
+returns public.question_comment
+as $$
+  insert into public.question_comment_upvote(user_id, comment_id) values (current_user_id(), comment_id);
+  update public.question_comment set upvotes = (upvotes + 1) 
+    where id = comment_id returning *;
+
+$$ language sql volatile strict;
+
+create or replace function public.upvote_comment_cancel(comment_id bigint)
+returns public.question_comment
+as $$
+begin
+  if not exists (select * from public.question_comment_upvote where user_id = current_user_id() and comment_id = comment_id) then
+    raise exception 'you have not upvoted this comment';
+    return null;
+  end if;
+  delete from public.question_comment_upvote where user_id = current_user_id() and comment_id = comment_id;
+  update public.question_comment set upvotes = (upvotes - 1) 
+    where id = comment_id returning *;
+end;
+$$ language plpgsql volatile strict;
+
+create or replace function public.downvote_comment(comment_id bigint)
+returns public.question_comment
+as $$
+  insert into public.question_comment_downvote(user_id, comment_id) values (current_user_id(), comment_id);
+  update public.question_comment set downvotes = (downvotes +1)
+    where id = comment_id returning *;
+$$ language sql volatile strict;
+
+create or replace function public.downvote_comment_cancel(comment_id bigint)
+returns public.question_comment
+as $$
+begin
+  if not exists (select * from public.question_comment_upvote where user_id = current_user_id() and comment_id = comment_id) then
+    raise exception 'you have not upvoted this comment';
+    return null;
+  end if;
+  delete from public.question_comment_upvote where user_id = current_user_id() and comment_id = comment_id;
+  update public.question_comment set downvotes = (downvotes - 1)
+    where id = comment_id returning *;
+end;
+$$ language plpgsql volatile strict;
