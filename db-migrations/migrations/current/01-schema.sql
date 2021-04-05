@@ -52,6 +52,7 @@ create table public.answer (
   answer JSON not null,
   question_id bigint not null references public.question(id) on delete cascade,
   author_id bigint not null references public.user(id) on delete cascade,
+  comment_count int default 0,
   updated_date timestamp with time zone default CURRENT_TIMESTAMP,
   created_date timestamp with time zone default CURRENT_TIMESTAMP
 );
@@ -97,19 +98,19 @@ comment on table public.question_comment_upvote is
 
 
 
-drop table if exists public.answer_comment;
-create table public.answer_comment (
-  id bigserial primary key,
-  comment TEXT not null,
-  answer_id bigint references public.answer(id) on delete cascade,
-  parent_id bigint references public.answer_comment(id) on delete cascade,
-  author_id bigint not null references public.user(id) on delete cascade,
-  updated_date timestamp with time zone default CURRENT_TIMESTAMP,
-  created_date timestamp with time zone default CURRENT_TIMESTAMP
-);
-create trigger update_comment before update on public.answer_comment for each row execute procedure updated_date();
-comment on table public.answer_comment is
-  'Answer Comment';    
+-- drop table if exists public.answer_comment;
+-- create table public.answer_comment (
+--   id bigserial primary key,
+--   comment TEXT not null,
+--   answer_id bigint references public.answer(id) on delete cascade,
+--   parent_id bigint references public.answer_comment(id) on delete cascade,
+--   author_id bigint not null references public.user(id) on delete cascade,
+--   updated_date timestamp with time zone default CURRENT_TIMESTAMP,
+--   created_date timestamp with time zone default CURRENT_TIMESTAMP
+-- );
+-- create trigger update_comment before update on public.answer_comment for each row execute procedure updated_date();
+-- comment on table public.answer_comment is
+--   'Answer Comment';    
 
 
 drop role if exists admin;
@@ -122,7 +123,7 @@ drop role if exists anonymous;
 create role anonymous;
 
 GRANT ALL ON TABLE public.answer TO postgres WITH GRANT OPTION;
-GRANT ALL ON TABLE public.answer_comment TO postgres WITH GRANT OPTION;
+-- GRANT ALL ON TABLE public.answer_comment TO postgres WITH GRANT OPTION;
 GRANT ALL ON TABLE public.question TO postgres WITH GRANT OPTION;
 GRANT ALL ON TABLE public.question_comment TO postgres WITH GRANT OPTION;
 GRANT ALL ON TABLE public.question_follower TO postgres WITH GRANT OPTION;
