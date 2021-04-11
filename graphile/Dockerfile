@@ -6,7 +6,7 @@ RUN mkdir -p /home/node/app/node_modules
 WORKDIR /home/node/app
 
 # Copy dependencies
-COPY ./src/package*.json .
+COPY ./package*.json ./
 RUN chown -R node:node /home/node/app
 
 # Install dependencies

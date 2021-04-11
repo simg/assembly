@@ -63,7 +63,8 @@ services:
     env_file:
       - .env
     environment:
-      - DEBUG=postgraphile:postgres,postgraphile:postgres:error,postgraphile:graphql
+      # - DEBUG=postgraphile:postgres,postgraphile:postgres:error,postgraphile:graphql
+      - DEBUG=graphile-build:warn
     depends_on:
       - postgres
     networks:
@@ -90,25 +91,25 @@ services:
     networks:
       - public
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: postgres
-      DB_SCHEMA: public
-      DB_PASSWORD: blip24
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: Pa55w0rd
-      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-      #JDBC_PARAMS: "ssl=true"
-    ports:
-      - 8082:8080
-    depends_on:
-      - postgres      
-    networks:
-      - public
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:latest
+  #   environment:
+  #     DB_VENDOR: POSTGRES
+  #     DB_ADDR: postgres
+  #     DB_DATABASE: keycloak
+  #     DB_USER: postgres
+  #     DB_SCHEMA: public
+  #     DB_PASSWORD: blip24
+  #     KEYCLOAK_USER: admin
+  #     KEYCLOAK_PASSWORD: Pa55w0rd
+  #     # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+  #     #JDBC_PARAMS: "ssl=true"
+  #   ports:
+  #     - 8082:8080
+  #   depends_on:
+  #     - postgres      
+  #   networks:
+  #     - public
     
   pgadmin:
     container_name: pgadmin

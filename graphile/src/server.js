@@ -3,6 +3,8 @@ const { postgraphile, makePluginHook } = require("postgraphile");
 const { default: PgPubsub } = require("@graphile/pg-pubsub");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
 const PgSmallNumericToFloatPlugin = require("./plugins/PgSmallNumericToFloatPlugin");
+const PgConnectionFilterPlugin = require("postgraphile-plugin-connection-filter");
+const postgraphilePolyRelationCorePlugin = require('postgraphile-polymorphic-relation-plugin').postgraphilePolyRelationCorePlugin;
 
 
 const pluginHook = makePluginHook([
@@ -22,9 +24,15 @@ const postgraphileOptions = {
   dynamicJson:true,
   extendedErrors: ['hint', 'detail', 'errcode'],
   appendPlugins: [
+    PgConnectionFilterPlugin,
     PgSimplifyInflectorPlugin,
-    PgSmallNumericToFloatPlugin
+    PgSmallNumericToFloatPlugin,
+    postgraphilePolyRelationCorePlugin
   ],
+  graphileBuildOptions: {
+    connectionFilterPolymorphicForward: true,
+    connectionFilterPolymorphicBackward: true,
+  },  
   disableDefaultMutations: true,
   websocketMiddlewares: [
     // Add whatever middlewares you need here, note that they should only

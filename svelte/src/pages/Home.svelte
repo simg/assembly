@@ -2,11 +2,12 @@
 
   import { Link } from 'svelte-routing';
 
-  import ContentSummary from '../components/ContentSummary.svelte';
+  import ContentSummary from '../components/content/ContentSummary.svelte';
 
   import { dateFormat } from '../lib/dateHelpers';
       
   import { operationStore, query } from '@urql/svelte';
+
   const answers = operationStore(`
     query MyQuery {
       answers {
@@ -34,6 +35,7 @@
       }
     }
   `, {}, { requestPolicy: 'network-only' });
+  
   query(answers);	
 </script>
 

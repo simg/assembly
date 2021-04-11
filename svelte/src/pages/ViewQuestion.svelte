@@ -4,14 +4,17 @@
   import { onMount }  from 'svelte';
 
   import { Link } from "svelte-routing";
-  import EditAnswer from '../components/EditAnswer.svelte';
-  import Content from '../components/Content.svelte';
+  import EditAnswer from '../components/answer/EditAnswer.svelte';
+  import Content from '../components/content/Content.svelte';
 
   import { dateFormat } from '../lib/dateHelpers';
       
   import { operationStore, query, mutation } from '@urql/svelte';
-  import AddComment from '../components/AddComment.svelte';
-  import QuestionComments from '../components/QuestionComments.svelte';
+  import QuestionComments from '../components/question/QuestionComments.svelte';
+  import AnswerComments from '../components/answer/AnswerComments.svelte';
+  import ShowComment from '../components/comment/ShowComment.svelte';
+
+  import { fetchQuestions } from './question.store';
 
   export let questionId;
   export let userId = '1';
@@ -26,49 +29,49 @@
     userId: userId
   }
   
-  const question = operationStore(`
-      query ($questionId : BigInt!, $userId : BigInt!) {
-        question(id: $questionId) {
-          __typename
-          id
-          question
-          createdDate
-          questionFollowers {
-            totalCount
-          }
-          questionComments {
-            totalCount
-          }          
-          isUserFollowing : questionFollowers(condition: {userId: $userId}) {
-            totalCount
-          }          
-          answers {
-            totalCount
-            nodes {
-              __typename
-              id
-              answer
-              author {
-                __typename
-                id
-                firstName
-                lastName
-              }
-              createdDate
-              answerComments {
-                totalCount
-              }
-            }
-          }
-        }
-      }
-    `, questionParameters, { requestPolicy: 'network-only' });  
+  let question = fetchQuestions(questionParameters);
 
-  query(question);
+  // let question = operationStore(`
+  //   query ($questionId : BigInt!, $userId : BigInt!) {
+  //     question(id: $questionId) {
+  //       __typename
+  //       id
+  //       question
+  //       createdDate
+  //       questionFollowers {
+  //         totalCount
+  //       }
+  //       questionComments {
+  //         totalCount
+  //       }          
+  //       isUserFollowing : questionFollowers(condition: {userId: $userId}) {
+  //         totalCount
+  //       }          
+  //       answers {
+  //         totalCount
+  //         nodes {
+  //           __typename
+  //           id
+  //           answer
+  //           author {
+  //             __typename
+  //             id
+  //             firstName
+  //             lastName
+  //           }
+  //           createdDate
+  //           commentCount
+  //         }
+  //       }
+  //     }
+  //   }
+  // `, questionParameters, { requestPolicy: 'network-only' });  
+  
+  // query(question);
 
   const followQuestionMutation = mutation(operationStore(`
       mutation ($questionId : BigInt!) {
-          followQuestion(input: {questionId: $questionId}) {
+          questionFollow(input: {questionId: $questionId}) {
             clientMutationId
           }
         }
@@ -76,7 +79,7 @@
 
   const unfollowQuestionMutation = mutation(operationStore(`
     mutation ($questionId : BigInt!) {
-        unfollowQuestion(input: {questionId: $questionId}) {
+        questionUnfollow(input: {questionId: $questionId}) {
           clientMutationId
         }
       }
@@ -84,7 +87,7 @@
 
   const deleteAnswerMutation = mutation(operationStore(`
     mutation MyMutation($answerId: BigInt!) {
-      deleteAnswer(input: {answerId: $answerId}) {
+      answerDelete(input: {answerId: $answerId}) {
         clientMutationId
       }
     }
@@ -127,7 +130,16 @@
 
   function btnShowCommentsToggleClick($event) {
     showQuestionComments = !showQuestionComments;
-  }  
+  }
+
+  function btnShowAnswerCommentsToggleClick(answer) {
+    console.log("answer", answer)
+    answer.showComments = !answer.showComments;
+    console.log("question", question)
+    question = question; //svelte reactivity hack. 
+  }
+
+  
 
 
 </script>
@@ -180,15 +192,20 @@
         {#if editAnswerId == answer.id}
           <EditAnswer answerId={answer.id} on:answerClosed={handleAnswerClosed}/>
         {:else}
-
           <div class="answer-text">
             <Content output={answer.answer} />
           </div>
         {/if}
+
         <div class="answer-actions">
+          <button class="btn btn-comments"on:click={() => btnShowAnswerCommentsToggleClick(answer)}><span class="text">Comments . </span><span class="count">{answer.commentCount}</span></button>
           <button on:click|preventDefault={() => btnDeleteAnswerClick(answer.id)}>Delete</button>
           <button on:click|preventDefault={() => btnEditAnswerClick(answer.id)}>Edit</button>
         </div>
+
+        {#if answer.showComments}
+          <AnswerComments answerId={answer.id}></AnswerComments>
+        {/if}        
       </article>
     {/each}
   </article>

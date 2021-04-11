@@ -50,11 +50,12 @@ export const emptyCommentTree = () => ({
 export const removeCommentFromTree = (commentTree:CommentTree, comment:Comment) : CommentTree => {
   if (!comment.parentId) {
     commentTree.comments = commentTree.comments.filter(c => c != comment);
+    return commentTree;
   }
   const parentComment = commentTree.index[comment.parentId];
   if (!parentComment) {
     // we don't have the comment in the tree. maybe something has gone wrong?
-    return;
+    return commentTree;
   }
   parentComment.comments = parentComment.comments.filter(c => c != comment);
   return commentTree;
@@ -70,15 +71,16 @@ const _updateCommentTree = (commentTree:CommentTree, _comment: _GqlComment) : Co
   let comment = commentTree.index.get(_comment.id);
   if (comment) {
     comment = mergeComment(comment, _comment);
-  } else {
-    comment = toComment(_comment);
-    commentTree.index.set(comment.id, comment);
-    
-    //check the orphans list
-    const orphans = commentTree.orphans.filter(c => c.parentId === comment.id);
-    comment.replies = orphans;
-    commentTree.orphans = _.difference(commentTree.orphans, orphans);
-  }
+    return commentTree;
+  } 
+
+  comment = toComment(_comment);
+  commentTree.index.set(comment.id, comment);
+  
+  //check the orphans list
+  const orphans = commentTree.orphans.filter(c => c.parentId === comment.id);
+  comment.replies = orphans;
+  commentTree.orphans = _.difference(commentTree.orphans, orphans);
 
   if (comment.parentId) {
     // this is a comment reply

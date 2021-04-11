@@ -13,6 +13,7 @@ export let minHeight: number = 300;
 let editor;
 
 onMount(async ()=> {
+  console.log("editorId", editorId);
   editor = new EditorJS({ 
     holder: editorId,
     autofocus: true,
@@ -54,5 +55,4 @@ onDestroy(() => {
     padding:5px 15px;
   }
 </style>
-
 <div class="editor" id="{editorId}"></div>

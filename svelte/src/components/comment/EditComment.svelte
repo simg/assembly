@@ -5,7 +5,7 @@
   import { operationStore, query, mutation } from '@urql/svelte';
   import * as _ from 'lodash';
 
-  import Editor from './Editor.svelte';
+  import Editor from '../content/Editor.svelte';
 
   const dispatch = createEventDispatcher();
     

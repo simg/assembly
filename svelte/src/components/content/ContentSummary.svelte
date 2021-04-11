@@ -9,8 +9,8 @@
                     _.get(output.find(block => block.type === 'paragraph'), 'data.text')
                     : output;
   
-  </script>
+</script>
   
-  {#if content }
-    <p>{content}</p>
-  {/if}
+{#if content }
+  <p>{content}</p>
+{/if}
