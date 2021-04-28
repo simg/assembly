@@ -22,7 +22,7 @@ type _GqlComment = {
 export type CommentTree = {
   index: Map<string, Comment> ;
   comments: Comment[] ;
-  orphans:Comment[];
+  orphans:Comment[] ;
 }
 
 export type Comment = {
@@ -41,10 +41,12 @@ export type Comment = {
 }
 
 
+
+
 export const emptyCommentTree = () => ({
   index : new Map<string, Comment>(),
   comments:[],
-  orphans:[]
+  orphans:[],
 });
 
 export const removeCommentFromTree = (commentTree:CommentTree, comment:Comment) : CommentTree => {
@@ -61,20 +63,22 @@ export const removeCommentFromTree = (commentTree:CommentTree, comment:Comment) 
   return commentTree;
 }
 
-export const updateCommentTree = (commentTree:CommentTree, comments: _GqlComment[] ) : CommentTree => {
-  return comments.reduce(_updateCommentTree, commentTree);
+export const updateCommentTree = (commentTree:CommentTree, comments: Comment | Comment[] ) : CommentTree => {
+  return Array.isArray(comments) ? comments.reduce(_updateCommentTree, commentTree)
+                                 : _updateCommentTree(commentTree, comments);
 }
 
-const _updateCommentTree = (commentTree:CommentTree, _comment: _GqlComment) : CommentTree => {
+const _updateCommentTree = (commentTree:CommentTree, comment: Comment) : CommentTree => {
 
-  // either update the existing comment from the tree
-  let comment = commentTree.index.get(_comment.id);
-  if (comment) {
-    comment = mergeComment(comment, _comment);
+  // if this comment id already exists update the existing comment in the tree and return
+  if (commentTree.index.get(comment.id)) {
+    //comment = mergeComment(comment, _comment);
+    commentTree.index.set(comment.id, comment);
     return commentTree;
   } 
 
-  comment = toComment(_comment);
+  // this is a new comment
+  // comment = toComment(_comment);
   commentTree.index.set(comment.id, comment);
   
   //check the orphans list
@@ -103,17 +107,17 @@ const _updateCommentTree = (commentTree:CommentTree, _comment: _GqlComment) : Co
 }
 
 
-const mergeComment = (comment: Comment, _comment: _GqlComment) : Comment => {
-  return _.assign(
-      comment, 
-      _comment, {
-        isUserUpvoted: !!_comment.isUserUpvoted.totalCount,
-        isUserDownvoted: !!_comment.isUserDownvoted.totalCount,
-      }
-    );
-}
+// const mergeComment = (comment: Comment, _comment: Comment) : Comment => {
+//   return _.assign(
+//       comment, 
+//       _comment, {
+//         isUserUpvoted: !!_comment.isUserUpvoted.totalCount,
+//         isUserDownvoted: !!_comment.isUserDownvoted.totalCount,
+//       }
+//     );
+// }
 
-function toComment(_comment: _GqlComment) : Comment {
+export function toComment(_comment: _GqlComment) : Comment {
   return _.assign(_comment, {
       replies:[],
       expanded:false,

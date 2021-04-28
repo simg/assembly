@@ -47,7 +47,7 @@
   {:else}
     <section>
     {#each $answers.data.answers.nodes as answer}
-      <article>
+      <article class="answer-summary answer-summary-{answer.id}">
         <header>
           <div class="meta-text">
             <span class="author-name">{answer.author.firstName} {answer.author.lastName}</span>

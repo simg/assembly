@@ -9,6 +9,7 @@ An open source Quora clone (kind of) that is currently an experiment in building
 * Urql
 * Traefik
 * Docker & Docker Compose
+* Playwright
 
 ## Installation
 install docker and docker compose

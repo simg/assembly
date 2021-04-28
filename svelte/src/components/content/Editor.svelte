@@ -27,6 +27,9 @@ onMount(async ()=> {
       paragraph: Paragraph
     }, 
     data: { blocks:content},
+    sanitizer: {
+      br:false
+    },
     onChange: () => {
       // sometimes the editor can already have been removed by the time
       // we get here, which causes an error.      

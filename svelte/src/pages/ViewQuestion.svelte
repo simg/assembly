@@ -31,44 +31,6 @@
   
   let question = fetchQuestions(questionParameters);
 
-  // let question = operationStore(`
-  //   query ($questionId : BigInt!, $userId : BigInt!) {
-  //     question(id: $questionId) {
-  //       __typename
-  //       id
-  //       question
-  //       createdDate
-  //       questionFollowers {
-  //         totalCount
-  //       }
-  //       questionComments {
-  //         totalCount
-  //       }          
-  //       isUserFollowing : questionFollowers(condition: {userId: $userId}) {
-  //         totalCount
-  //       }          
-  //       answers {
-  //         totalCount
-  //         nodes {
-  //           __typename
-  //           id
-  //           answer
-  //           author {
-  //             __typename
-  //             id
-  //             firstName
-  //             lastName
-  //           }
-  //           createdDate
-  //           commentCount
-  //         }
-  //       }
-  //     }
-  //   }
-  // `, questionParameters, { requestPolicy: 'network-only' });  
-  
-  // query(question);
-
   const followQuestionMutation = mutation(operationStore(`
       mutation ($questionId : BigInt!) {
           questionFollow(input: {questionId: $questionId}) {
@@ -159,7 +121,7 @@
 {:else if $question.error}
 <p class="error">Oh no... {$question.error.message}</p>
 {:else}
-  <article class="question-body">
+  <article class="question-body question-{ question.data.question.id }">
     <h2>{question.data.question.question}</h2>
     <div class="question-actions">
       <button class="btn btn-answer" on:click={btnAddAnswerClick}>Answer</button>

@@ -1,17 +1,18 @@
 <script lang="ts">
 
-  import { setContext } from  'svelte';
+  import { setContext, onMount } from  'svelte';
   import { Link } from 'svelte-routing';
   import Content from '../content/ContentSummary.svelte';
   import { dateTimeFormat } from '../../lib/dateHelpers';
   import { operationStore, query, mutation } from '@urql/svelte';
 
-  import { emptyCommentTree, updateCommentTree, removeCommentFromTree } from '../../lib/comment-tree';
+  import { emptyCommentTree, updateCommentTree, removeCommentFromTree, toComment } from '../../lib/comment-tree';
   import type { Comment } from '../../lib/comment-tree';
   import ShowComment from '../comment/ShowComment.svelte';
   import Editor from '../content/Editor.svelte';
   import type { OutputBlockData } from '@editorjs/editorjs';
   import * as questionCommentAPI from './question-comment.api';
+  import * as commentAPI from '../comment/comment.api';
 
   function defaultComment() {
     return {
@@ -29,15 +30,11 @@
       expanded: true,
       showEdit:true
     };
-  }  
+  }
 
   export let questionId;
+  let treeId = questionId; //TODO: extract treeId from the graphql response
   let commentTree = emptyCommentTree();
-
-  // setContext('commentAPI',  questionCommentAPI);
-  // setContext('entityType', 'question');
-  // setContext('entityId',    questionId);
-  // setContext('commentTree', commentTree);
 
   const currentUser = { //TODO: authentication
 
@@ -57,43 +54,61 @@
 
   commentsQuery.subscribe(res => {
     if (res.data) {
-      commentTree = updateCommentTree(commentTree, res.data.questionComments.nodes);
+      //commentTree = updateCommentTree(commentTree, res.data.question.commentTreeByCommentTree.commentsByTreeId.nodes);
+
+      commentTree = updateCommentTree(commentTree, res.data.comments.nodes.map(toComment));
     }
   });  
 
-  const commentAddMutation            = mutation(questionCommentAPI.commentAdd),
-        commentDeleteMutation         = mutation(questionCommentAPI.commentDelete),
-        commentUpdateMutation         = mutation(questionCommentAPI.commentUpdate),
-        commentUpvoteAddMutation      = mutation(questionCommentAPI.commentUpvoteAdd),
-        commentUpvoteCancelMutation   = mutation(questionCommentAPI.commentUpvoteCancel),
-        commentDownvoteAddMutation    = mutation(questionCommentAPI.commentDownvoteAdd),
-        commentDownvoteCancelMutation = mutation(questionCommentAPI.commentDownvoteCancel);        
+  //const commentAddMutation            = mutation(operationStore(commentAPI.commentAddGql)),
+  const commentAddMutation            = mutation(commentAPI.commentAdd),
+        commentDeleteMutation         = mutation(commentAPI.commentDelete),
+        commentUpdateMutation         = mutation(commentAPI.commentUpdate),
+        commentUpvoteAddMutation      = mutation(commentAPI.commentUpvoteAdd),
+        commentUpvoteCancelMutation   = mutation(commentAPI.commentUpvoteCancel),
+        commentDownvoteAddMutation    = mutation(commentAPI.commentDownvoteAdd),
+        commentDownvoteCancelMutation = mutation(commentAPI.commentDownvoteCancel);        
   
   let error : any | undefined;
 
   function btnSaveReplyClick(comment) {
 
-    commentAddMutation({questionId: questionId, parentId:undefined, comment : comment.comment})
+    commentAddMutation({treeId: treeId, parentId:undefined, comment : comment.comment})
       .then(res => {
         if (res.error) {
           error = res.error;// TODO: something better than this
         } else {
-          console.log("addmutation:commentTree", commentTree)
-          comment.id = res.data.questionCommentAdd.questionComment.id;
+          console.log("commentAddMutation", res);
+          comment.id = res.data.commentAdd.comment.id;
           comment.showEdit=false;
-          commentTree = commentTree;
+          commentTree = updateCommentTree(commentTree, comment);
+          //commentTree = commentTree;
           newComments = [
             defaultComment()
           ];
-          newCommentCount++;
+          newCommentCount++; //svelte refresh hack. needed?
         }
       });
   }
 
-  function handleCommentAdd(event) {
-    console.log("handleCommentAdd" ,event)
- 
-  }
+  function handleSaveComment(event) {
+    const comment = event.detail;
+    commentAddMutation({treeId: treeId, parentId:comment.parentId, comment : comment.comment})
+      .then(res => {
+        if (res.error) {
+          error = res.error;// TODO: something better than this
+        } else {
+          comment.id = res.data.commentAdd.comment.id;
+          comment.showEdit=false;
+          //commentTree = updateCommentTree(commentTree, comment);
+          commentTree = commentTree;
+          newComments = [
+            defaultComment()
+          ];
+          newCommentCount++; //svelte refresh hack. needed?
+        }
+      });       
+  }  
 
   function handleDeleteComment(event) {
     commentDeleteMutation({commentId:event.detail.id}).then(res => {
@@ -159,25 +174,7 @@
 
 
 
-  function handleSaveComment(event) {
-    console.log("comment:save", event);
-    const comment = event.detail;
-    commentAddMutation({questionId: questionId, parentId:comment.parentId, comment : comment.comment})
-      .then(res => {
-        if (res.error) {
-          error = res.error;// TODO: something better than this
-        } else {
-          comment.id = res.data.questionCommentAdd.questionComment.id;
-          comment.showEdit=false;
-          //commentTree.comments = [...commentTree.comments, comment];
-          commentTree = commentTree;
-          newComments = [
-            defaultComment()
-          ];
-          newCommentCount++;
-        }
-      });       
-  }
+
 
 </script>
 
@@ -189,7 +186,7 @@
 {:else if error}
 <p>Oh no... {$error}</p>
 {:else}
-  <section>
+  <section class="question-comments">
   {#each commentTree.comments as comment}
     <ShowComment comment={comment} 
       on:delete={handleDeleteComment} 
@@ -200,9 +197,11 @@
   {/each}
   {#each newComments as newComment}
     {#key newComment.editorId}
-      <Editor editorId="comment-{`${newComment.editorId}`}" bind:content={newComment.comment} minHeight={30} />
+      <div class="question-{questionId}-add-comment">
+        <Editor editorId="comment-{`${newComment.editorId}`}" bind:content={newComment.comment} minHeight={30} />
+        <button class="btn btn-save-reply" on:click|preventDefault={() => btnSaveReplyClick(newComment)}>Save Reply</button>
+      </div>
     {/key}
-    <button class="btn btn-save-reply" on:click|preventDefault={() => btnSaveReplyClick(newComment)}>Save Reply</button>
   {/each}
   </section>
 {/if}

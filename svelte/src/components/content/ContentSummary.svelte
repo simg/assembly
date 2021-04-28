@@ -12,5 +12,5 @@
 </script>
   
 {#if content }
-  <p>{content}</p>
+  <p>{@html content}</p>
 {/if}

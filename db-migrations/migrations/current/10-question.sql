@@ -1,6 +1,22 @@
 -----------------------------------------------------
 -- TRIGGER FUNCTIONS
 -----------------------------------------------------
+create or replace function question_make_comment_tree()
+returns trigger as $$
+begin
+  insert into comment_tree (entity_type) values ('question') returning id into NEW.comment_tree;
+  return NEW;
+end;
+$$
+LANGUAGE plpgsql VOLATILE;
+
+create or replace function question_delete_comment_tree()
+returns trigger as $$
+begin
+  delete from comment_tree where id = NEW.comment_tree;
+end;
+$$
+LANGUAGE plpgsql VOLATILE;
 
 
 
@@ -14,17 +30,20 @@ create table public.question (
   author_id bigint not null references public.user(id) on delete cascade,
   question TEXT not null,
   details TEXT,
+  comment_tree bigint references public.comment_tree(id) on delete cascade,
   updated_date timestamp with time zone default CURRENT_TIMESTAMP,
   created_date timestamp with time zone default CURRENT_TIMESTAMP
 );
 create index author_id_idx on question(author_id);
-create trigger update_question before update on public.question for each row execute procedure updated_date();
+create trigger update_question                 before update on public.question for each row execute procedure updated_date();
+create trigger tr_question_make_comment_tree   before insert on public.question for each row execute procedure question_make_comment_tree();
+create trigger tr_question_delete_comment_tree after  delete on public.question for each row execute procedure question_delete_comment_tree();
 comment on table public.question is 'Question';
 
 drop table if exists public.question_follower;
 create table public.question_follower (
-  user_id bigint not null references public.user(id) on delete cascade,
-  question_id bigint not null references public.question(id) on delete cascade,
+  user_id      bigint not null references public.user(id) on delete cascade,
+  question_id  bigint not null references public.question(id) on delete cascade,
   created_date timestamp with time zone default CURRENT_TIMESTAMP,
   constraint question_follower_pkey primary key (user_id, question_id)
 );

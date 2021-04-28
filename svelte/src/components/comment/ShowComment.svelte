@@ -12,15 +12,6 @@ import Content from '../content/Content.svelte';
 import Editor from '../content/Editor.svelte';
 import { dateTimeFormat } from '../../lib/dateHelpers';
 
-// const commentAPI  = getContext('commentAPI'),
-//       entityType  = getContext('entityType'),
-//       entityId    = getContext('entityId');
-
-// let commentTree = getContext('commentTree');
-
-// console.log("entityId", entityId);
-// console.log("commentTree", commentTree)
-
 const dispatch = createEventDispatcher();
 
 const currentUser = {
@@ -37,14 +28,12 @@ let commentReply : Comment | undefined;
 let error : any | undefined;
 
 function btnUpvoteClick() {
-  console.log("btnUpvoteClick");
   dispatch('upvote', {comment, done:() => {
     comment=comment; // trick to get svelte to re-render when event has been handled
   }});
 }
 
 function btnDownvoteClick() {
-  console.log("btnDownvoteClick");
   dispatch('downvote', {comment, done:() => {
     comment=comment; // trick to get svelte to re-render when event has been handled
   }});
@@ -116,7 +105,7 @@ function btnToggleCommentExpandedClick() {
 </style>
 
 {#if comment.expanded}
-  <article class="comment">
+  <article class="comment comment-{comment.id}">
   {#if comment.showEdit}
     <Editor editorId="comment-{comment.parentId}-{comment.id}" bind:content={comment.comment} minHeight={30} />
     <button class="btn btn-save-reply" on:click|preventDefault={btnSaveReplyClick}>Save Reply</button>

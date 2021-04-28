@@ -1,0 +1,15 @@
+{
+  "name": "playwright-e2e",
+  "version": "1.0.0",
+  "description": "e2e tests for Assembly app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "e2e":"npx folio --param browserName=firefox --param screenshotOnFailure"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^0.1102.0"
+  }
+}
